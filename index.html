@@ -1,1 +1,568 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>情報Ⅰ ネットワーク＆接続シミュレーター</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <h1>🌐 ネットワーク接続＆トラブル解決シミュレーター</h1>
+    <p class="subtitle">高1 情報Ⅰ：Step 3のBYOD実習に向けた事前体験アプリ</p>
+  </header>
+
+  <!-- タブ切り替えナビゲーション -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('connect-tab')">📱 1. Wi-Fi接続・設定確認</button>
+    <button class="tab-btn" onclick="switchTab('trouble-tab')">🛠️ 2. トラブル切り分けミッション</button>
+    <button class="tab-btn" onclick="switchTab('terms-tab')">📚 3. 重要用語カード</button>
+  </nav>
+
+  <main class="container">
+    <!-- TAB 1: Wi-Fi接続＆設定確認 -->
+    <section id="connect-tab" class="tab-content active">
+      <div class="sim-grid">
+        <!-- 仮想スマホ画面 -->
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-status-bar">
+              <span>9:41</span>
+              <span id="phone-wifi-icon">📶</span>
+            </div>
+            <div class="phone-body">
+              <h3>Wi-Fi 設定</h3>
+              <p class="instruction-text">接続する班のSSIDを選択してください</p>
+              
+              <div id="ssid-list" class="ssid-list">
+                <div class="ssid-item" onclick="selectSSID('Group-01-Wi-Fi')">
+                  <span>🔒 Group-01-Wi-Fi</span>
+                  <span class="signal">📶 強</span>
+                </div>
+                <div class="ssid-item" onclick="selectSSID('Group-02-Wi-Fi')">
+                  <span>🔒 Group-02-Wi-Fi</span>
+                  <span class="signal">📶 中</span>
+                </div>
+                <div class="ssid-item" onclick="selectSSID('Free-Guest-WiFi')">
+                  <span>🔓 Free-Guest-WiFi</span>
+                  <span class="signal">📶 弱</span>
+                </div>
+              </div>
+
+              <!-- パスワード入力モーダル風エリア -->
+              <div id="password-area" class="password-area hidden">
+                <p><strong>SSID: <span id="selected-ssid-name"></span></strong></p>
+                <label for="pass-input">暗号化キー（パスワード）:</label>
+                <input type="password" id="pass-input" placeholder="パスワードを入力">
+                <p class="hint-text">💡 班のパスワード：<code>pass1234</code></p>
+                <button class="btn-primary" onclick="connectWiFi()">接続する</button>
+              </div>
+
+              <!-- 接続完了＆詳細確認画面 -->
+              <div id="connected-details" class="details-area hidden">
+                <div class="status-badge success">✅ 接続成功</div>
+                <table class="info-table">
+                  <tr><th>SSID</th><td id="detail-ssid">-</td></tr>
+                  <tr><th>IPアドレス</th><td id="detail-ip">192.168.1.15 (DHCP取得)</td></tr>
+                  <tr><th>MACアドレス</th><td>AA:BB:CC:11:22:33</td></tr>
+                  <tr><th>暗号化方式</th><td>WPA3 (SAE)</td></tr>
+                </table>
+                <button class="btn-secondary" onclick="resetWiFiSim()">最初から試す</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- サイド解説パネル -->
+        <div class="explanation-card">
+          <h2>💡 ここがポイント！</h2>
+          <div id="explanation-text">
+            <p>スマホをWi-Fiにつなぐときは、以下の順番で情報がやり取りされています。</p>
+            <ol>
+              <li><strong>SSIDの選択</strong>：接続したい無線ルータ（アクセスポイント）を指定します。</li>
+              <li><strong>暗号化キー入力</strong>：通信を盗み見られないよう合言葉を入力します。</li>
+              <li><strong>IPアドレスの自動割り当て</strong>：接続が成功すると、ルータの<strong>DHCP機能</strong>が端末にネット上の住所（IPアドレス）を自動で貸し出します。</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: トラブル切り分けミッション -->
+    <section id="trouble-tab" class="tab-content">
+      <div class="mission-container">
+        <h2>🛠️ トラブルシューティング・切り分けミッション</h2>
+        <p>「ネットにつながらない！」というトラブルが発生しました。<strong>「① 物理（電源・電波）」→「② 設定（パスワード・IP）」</strong>の正しい点検順序で原因を特定しましょう。</p>
+
+        <div class="mission-card">
+          <div class="mission-header">
+            <span class="mission-tag">ミッション <span id="mission-num">1</span> / 3</span>
+            <h3 id="mission-title">問題の読み込み中...</h3>
+          </div>
+          <p id="mission-desc" class="mission-desc"></p>
+
+          <div class="action-steps">
+            <h4>【ステップ1】まず何から点検しますか？</h4>
+            <div id="step1-buttons" class="btn-group"></div>
+
+            <div id="step2-container" class="hidden">
+              <h4>【ステップ2】原因の特定と対策</h4>
+              <div id="step2-buttons" class="btn-group"></div>
+            </div>
+          </div>
+
+          <div id="mission-feedback" class="feedback-box hidden"></div>
+          <button id="next-mission-btn" class="btn-primary hidden" onclick="nextMission()">次のミッションへ</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: 重要用語カード -->
+    <section id="terms-tab" class="tab-content">
+      <h2>📚 これだけは押さえよう！情報Ⅰ LAN用語</h2>
+      <div class="terms-grid">
+        <div class="term-card">
+          <div class="term-icon">🚪</div>
+          <h3>ルータ</h3>
+          <p>家庭や学校のLAN（内部）とインターネット（外部）の境界に立ち、データの行き先を案内する機器。</p>
+        </div>
+        <div class="term-card">
+          <div class="term-icon">🔌</div>
+          <h3>スイッチングハブ</h3>
+          <p>有線LANケーブルを何本も挿して、機器同士を物理的につなぐ集約機器。</p>
+        </div>
+        <div class="term-card">
+          <div class="term-icon">🏠</div>
+          <h3>IPアドレス</h3>
+          <p>ネットワーク上で機器を識別するための「ネット上の住所」（例: 192.168.1.1）。</p>
+        </div>
+        <div class="term-card">
+          <div class="term-icon">🏷️</div>
+          <h3>MACアドレス</h3>
+          <p>スマホやPCの製造時に付けられた、世界に1つだけの固有識別番号（機器のマイナンバー）。</p>
+        </div>
+        <div class="term-card">
+          <div class="term-icon">🤖</div>
+          <h3>DHCP</h3>
+          <p>Wi-Fiに繋がった機器へ、空いているIPアドレスを自動的に配ってくれる仕組み。</p>
+        </div>
+        <div class="term-card">
+          <div class="term-icon">🔐</div>
+          <h3>WPA2 / WPA3</h3>
+          <p>無線LANの電波を暗号化し、通信の盗み見や不正侵入を防ぐセキュリティ規格。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
+② style.css
+/* 全体デザイン・フラットスタイルの変数設定 */
+:root {
+  --primary-color: #3b82f6;
+  --primary-hover: #2563eb;
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --accent-success: #22c55e;
+  --accent-error: #ef4444;
+  --border-radius: 12px;
+}
+
+body {
+  font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* ヘッダー */
+.app-header {
+  background: white;
+  border-bottom: 2px solid #e2e8f0;
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1e293b;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* タブナビゲーション */
+.tab-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  padding: 0.5rem;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: var(--text-muted);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active, .tab-btn:hover {
+  background-color: #eff6ff;
+  color: var(--primary-color);
+}
+
+.container {
+  max-width: 960px;
+  margin: 1.5rem auto;
+  padding: 0 1rem;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* 仮想スマホフレーム */
+.sim-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .sim-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.phone-frame {
+  background: #0f172a;
+  border-radius: 36px;
+  padding: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.phone-screen {
+  background: white;
+  border-radius: 26px;
+  height: 480px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.phone-status-bar {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  background: #f1f5f9;
+  border-top-left-radius: 26px;
+  border-top-right-radius: 26px;
+}
+
+.phone-body {
+  padding: 1rem;
+}
+
+.phone-body h3 {
+  margin-top: 0;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 0.5rem;
+}
+
+.ssid-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ssid-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.ssid-item:hover {
+  background: #eff6ff;
+  border-color: var(--primary-color);
+}
+
+.password-area, .details-area {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
+.password-area input {
+  width: 100%;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+}
+
+.btn-primary, .btn-secondary {
+  width: 100%;
+  padding: 0.6rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.btn-primary { background: var(--primary-color); color: white; }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-secondary { background: #e2e8f0; color: var(--text-main); }
+
+.info-table {
+  width: 100%;
+  font-size: 0.85rem;
+  border-collapse: collapse;
+  margin: 0.5rem 0;
+}
+
+.info-table th, .info-table td {
+  padding: 0.4rem;
+  border-bottom: 1px solid #cbd5e1;
+  text-align: left;
+}
+
+/* トラブル切り分けミッション */
+.mission-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.option-btn {
+  padding: 0.75rem;
+  text-align: left;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.option-btn:hover { background: #eff6ff; border-color: var(--primary-color); }
+
+.feedback-box {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.feedback-box.correct { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+.feedback-box.incorrect { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+/* 用語カード */
+.terms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.term-card {
+  background: white;
+  padding: 1.25rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-top: 4px solid var(--primary-color);
+}
+
+.term-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.term-card h3 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+.term-card p { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
+
+.hidden { display: none !important; }
+③ script.js
+// タブ切り替え制御
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  
+  document.getElementById(tabId).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// モード1: Wi-Fi接続シミュレーション制御
+let currentSelectedSSID = '';
+
+function selectSSID(ssidName) {
+  currentSelectedSSID = ssidName;
+  document.getElementById('selected-ssid-name').innerText = ssidName;
+  document.getElementById('password-area').classList.remove('hidden');
+  document.getElementById('connected-details').classList.add('hidden');
+}
+
+function connectWiFi() {
+  const pass = document.getElementById('pass-input').value;
+  if (pass === 'pass1234') {
+    document.getElementById('password-area').classList.add('hidden');
+    document.getElementById('connected-details').classList.remove('hidden');
+    document.getElementById('detail-ssid').innerText = currentSelectedSSID;
+    document.getElementById('phone-wifi-icon').innerText = '📶';
+  } else {
+    alert('❌ 暗号化キー（パスワード）が正しくありません！\nヒント: pass1234 と入力してください。');
+  }
+}
+
+function resetWiFiSim() {
+  document.getElementById('pass-input').value = '';
+  document.getElementById('password-area').classList.add('hidden');
+  document.getElementById('connected-details').classList.add('hidden');
+  document.getElementById('phone-wifi-icon').innerText = '⚠️';
+}
+
+// モード2: トラブル切り分けミッション制御
+const missions = [
+  {
+    title: "ミッション1：Wi-Fi一覧に班のSSIDが表示されない！",
+    desc: "スマホのWi-Fi設定画面を開きましたが、接続したい『Group-01-Wi-Fi』が画面に表示されません。どう行動すべきでしょうか？",
+    step1: [
+      { text: "A. ルータの電源ランプやLEDが点灯しているか確認する（物理確認）", correct: true },
+      { text: "B. スマホの再起動や設定の初期化を行う（設定確認）", correct: false }
+    ],
+    step2: [
+      { text: "原因: ルータのコンセントが抜けていた。挿し直して復旧！", correct: true }
+    ],
+    explanation: "⭕ 大正解！トラブル発生時はまず『電源が入っているか・線は繋がっているか（物理確認）』から点検するのが鉄則です！"
+  },
+  {
+    title: "ミッション2：SSIDは出ているのに接続エラーになる！",
+    desc: "『Group-01-Wi-Fi』を選んでパスワードを入力しましたが、『パスワードが違います』と表示されます。",
+    step1: [
+      { text: "A. ルータを買い替える", correct: false },
+      { text: "B. 暗号化キーの1文字目（大文字・小文字）を確認・再入力する（設定確認）", correct: true }
+    ],
+    step2: [
+      { text: "原因: パスワードの打ち間違え。正しく打ち直して接続成功！", correct: true }
+    ],
+    explanation: "⭕ 正解！電波が届いている（物理OK）場合、次は『パスワードや設定の誤り（設定確認）』を疑います。"
+  },
+  {
+    title: "ミッション3：Wi-Fiマークはついたのにウェブが開かない！",
+    desc: "Wi-Fiアイコンは点灯しましたが、Webページを開こうとすると通信エラーになります。",
+    step1: [
+      { text: "A. 自分の端末の設定画面で、IPアドレスが取得できているか確認する", correct: true },
+      { text: "B. Wi-Fiルータを叩いてみる", correct: false }
+    ],
+    step2: [
+      { text: "原因: IPアドレスが自動割り当て（DHCP）になっていなかった。DHCPをONにして復旧！", correct: true }
+    ],
+    explanation: "⭕ 大正解！Wi-Fiに繋がっても、ルータからIPアドレス（ネット上の住所）をもらえていないと通信できません。"
+  }
+];
+
+let currentMissionIndex = 0;
+
+function loadMission(index) {
+  const m = missions[index];
+  document.getElementById('mission-num').innerText = index + 1;
+  document.getElementById('mission-title').innerText = m.title;
+  document.getElementById('mission-desc').innerText = m.desc;
+  
+  const s1 = document.getElementById('step1-buttons');
+  s1.innerHTML = '';
+  m.step1.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerText = opt.text;
+    btn.onclick = () => checkStep1(opt.correct);
+    s1.appendChild(btn);
+  });
+
+  document.getElementById('step2-container').classList.add('hidden');
+  document.getElementById('mission-feedback').classList.add('hidden');
+  document.getElementById('next-mission-btn').classList.add('hidden');
+}
+
+function checkStep1(isCorrect) {
+  const fb = document.getElementById('mission-feedback');
+  fb.classList.remove('hidden');
+  
+  if (isCorrect) {
+    fb.className = 'feedback-box correct';
+    fb.innerText = 'ナイス判断！まず「物理層（機器の状態）」や「基本的な手順」から点検するのが正しい順序です。';
+    document.getElementById('step2-container').classList.remove('hidden');
+    
+    const s2 = document.getElementById('step2-buttons');
+    s2.innerHTML = '';
+    missions[currentMissionIndex].step2.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerText = opt.text;
+      btn.onclick = () => finishMission();
+      s2.appendChild(btn);
+    });
+  } else {
+    fb.className = 'feedback-box incorrect';
+    fb.innerText = '❌ 順番が違います！いきなり複雑な設定変更をする前に、まずは「電源やケーブル、基本的な設定」から確認しましょう！';
+  }
+}
+
+function finishMission() {
+  const fb = document.getElementById('mission-feedback');
+  fb.className = 'feedback-box correct';
+  fb.innerText = missions[currentMissionIndex].explanation;
+  document.getElementById('next-mission-btn').classList.remove('hidden');
+}
+
+function nextMission() {
+  currentMissionIndex++;
+  if (currentMissionIndex < missions.length) {
+    loadMission(currentMissionIndex);
+  } else {
+    alert('🎉 全てのミッションをクリアしました！これでStep 3の実機実習もバッチリです！');
+    currentMissionIndex = 0;
+    loadMission(0);
+  }
+}
+
+// 初期化
+window.onload = () => {
+  loadMission(0);
+};
 
