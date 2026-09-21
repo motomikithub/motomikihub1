@@ -1,162 +1,248 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>情報Ⅰ ネットワーク＆接続シミュレーター</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wi-Fi開通ミッション 予行演習｜パケット便の旅 特別便</title>
+<meta name="description" content="情報Ⅰ・ネットワークの実習（BYOD端末でWi-Fi接続）に向けた予行演習。接続・設定確認・トラブルの切り分けを、宅配便のたとえで練習できます。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="app-header">
-    <h1>🌐 ネットワーク接続＆トラブル解決シミュレーター</h1>
-    <p class="subtitle">高1 情報Ⅰ：Step 3のBYOD実習に向けた事前体験アプリ</p>
-  </header>
 
-  <!-- タブ切り替えナビゲーション -->
-  <nav class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('connect-tab')">📱 1. Wi-Fi接続・設定確認</button>
-    <button class="tab-btn" onclick="switchTab('trouble-tab')">🛠️ 2. トラブル切り分けミッション</button>
-    <button class="tab-btn" onclick="switchTab('terms-tab')">📚 3. 重要用語カード</button>
-  </nav>
+<!-- ===== イラスト部品（画面には出ません） ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- トラック：荷台にWi-Fiマーク -->
+    <symbol id="i-truck" viewBox="0 0 120 70">
+      <rect x="4" y="6" width="68" height="42" rx="6" fill="#FFC72C" stroke="#14304A" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M72 20h20l16 16v12H72z" fill="#fff" stroke="#14304A" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M80 26h9l9 10H80z" fill="#BFE0F3" stroke="#14304A" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M22 25q14-13 28 0M28 31q8-7 16 0" fill="none" stroke="#14304A" stroke-width="3.5" stroke-linecap="round"/>
+      <circle cx="36" cy="38" r="3" fill="#14304A"/>
+      <circle cx="28" cy="52" r="9" fill="#14304A"/><circle cx="28" cy="52" r="3.5" fill="#fff"/>
+      <circle cx="92" cy="52" r="9" fill="#14304A"/><circle cx="92" cy="52" r="3.5" fill="#fff"/>
+    </symbol>
+    <!-- ルーター：ランプ色は --l1 --l2 --l3 で変えられる -->
+    <symbol id="i-router" viewBox="0 0 120 90">
+      <rect x="22" y="4" width="9" height="46" rx="4.5" fill="#fff" stroke="#14304A" stroke-width="3"/>
+      <rect x="89" y="4" width="9" height="46" rx="4.5" fill="#fff" stroke="#14304A" stroke-width="3"/>
+      <rect x="5" y="44" width="110" height="41" rx="10" fill="#FFC72C" stroke="#14304A" stroke-width="3"/>
+      <circle cx="30" cy="65" r="6" fill="var(--l1,#C9D3DC)" stroke="#14304A" stroke-width="2.5"/>
+      <circle cx="50" cy="65" r="6" fill="var(--l2,#C9D3DC)" stroke="#14304A" stroke-width="2.5"/>
+      <circle cx="70" cy="65" r="6" fill="var(--l3,#C9D3DC)" stroke="#14304A" stroke-width="2.5"/>
+      <rect x="86" y="58" width="9" height="14" rx="2" fill="#14304A"/>
+      <rect x="98" y="58" width="9" height="14" rx="2" fill="#14304A"/>
+    </symbol>
+    <!-- スマホ -->
+    <symbol id="i-phone" viewBox="0 0 60 100">
+      <rect x="4" y="3" width="52" height="94" rx="11" fill="#14304A"/>
+      <rect x="10" y="12" width="40" height="76" rx="5" fill="#fff"/>
+      <path d="M17 44q13-13 26 0M22 51q8-8 16 0" fill="none" stroke="#14304A" stroke-width="3.5" stroke-linecap="round"/>
+      <circle cx="30" cy="58" r="2.8" fill="#14304A"/>
+    </symbol>
+    <!-- 荷物（パケット） -->
+    <symbol id="i-box" viewBox="0 0 50 46">
+      <rect x="4" y="10" width="42" height="32" rx="3" fill="#F2C078" stroke="#14304A" stroke-width="3" stroke-linejoin="round"/>
+      <rect x="19" y="10" width="12" height="32" fill="#FFF3D1" stroke="#14304A" stroke-width="2.5"/>
+      <path d="M4 10l6-7h30l6 7" fill="#F2C078" stroke="#14304A" stroke-width="3" stroke-linejoin="round"/>
+    </symbol>
+    <!-- 鍵マーク -->
+    <symbol id="i-lock" viewBox="0 0 16 16">
+      <rect x="2.5" y="7" width="11" height="7.5" rx="1.5" fill="#333"/>
+      <path d="M5 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="#333" stroke-width="1.8"/>
+    </symbol>
+  </defs>
+</svg>
 
-  <main class="container">
-    <!-- TAB 1: Wi-Fi接続＆設定確認 -->
-    <section id="connect-tab" class="tab-content active">
-      <div class="sim-grid">
-        <!-- 仮想スマホ画面 -->
-        <div class="phone-frame">
-          <div class="phone-screen">
-            <div class="phone-status-bar">
-              <span>9:41</span>
-              <span id="phone-wifi-icon">📶</span>
-            </div>
-            <div class="phone-body">
-              <h3>Wi-Fi 設定</h3>
-              <p class="instruction-text">接続する班のSSIDを選択してください</p>
-              
-              <div id="ssid-list" class="ssid-list">
-                <div class="ssid-item" onclick="selectSSID('Group-01-Wi-Fi')">
-                  <span>🔒 Group-01-Wi-Fi</span>
-                  <span class="signal">📶 強</span>
-                </div>
-                <div class="ssid-item" onclick="selectSSID('Group-02-Wi-Fi')">
-                  <span>🔒 Group-02-Wi-Fi</span>
-                  <span class="signal">📶 中</span>
-                </div>
-                <div class="ssid-item" onclick="selectSSID('Free-Guest-WiFi')">
-                  <span>🔓 Free-Guest-WiFi</span>
-                  <span class="signal">📶 弱</span>
-                </div>
-              </div>
+<a class="skip" href="#main">本文へジャンプ</a>
+<p class="sr" id="live" aria-live="polite"></p>
 
-              <!-- パスワード入力モーダル風エリア -->
-              <div id="password-area" class="password-area hidden">
-                <p><strong>SSID: <span id="selected-ssid-name"></span></strong></p>
-                <label for="pass-input">暗号化キー（パスワード）:</label>
-                <input type="password" id="pass-input" placeholder="パスワードを入力">
-                <p class="hint-text">💡 班のパスワード：<code>pass1234</code></p>
-                <button class="btn-primary" onclick="connectWiFi()">接続する</button>
-              </div>
+<header class="masthead">
+  <div class="masthead-in">
+    <svg class="brand-truck" viewBox="0 0 120 70" aria-hidden="true"><use href="#i-truck" width="120" height="70"/></svg>
+    <div class="brand">
+      <p class="brand-sub">パケット便の旅　特別便</p>
+      <h1>Wi-Fi開通ミッション 予行演習</h1>
+    </div>
+    <button class="me" id="meBtn" type="button" data-go="0" aria-label="班と端末の設定を変える"></button>
+  </div>
+</header>
 
-              <!-- 接続完了＆詳細確認画面 -->
-              <div id="connected-details" class="details-area hidden">
-                <div class="status-badge success">✅ 接続成功</div>
-                <table class="info-table">
-                  <tr><th>SSID</th><td id="detail-ssid">-</td></tr>
-                  <tr><th>IPアドレス</th><td id="detail-ip">192.168.1.15 (DHCP取得)</td></tr>
-                  <tr><th>MACアドレス</th><td>AA:BB:CC:11:22:33</td></tr>
-                  <tr><th>暗号化方式</th><td>WPA3 (SAE)</td></tr>
-                </table>
-                <button class="btn-secondary" onclick="resetWiFiSim()">最初から試す</button>
-              </div>
-            </div>
-          </div>
-        </div>
+<nav class="route" aria-label="練習の道のり">
+  <ol id="route">
+    <li><button class="stop" type="button" data-go="0"><span class="pin" aria-hidden="true">出</span><span class="lab">出発</span></button></li>
+    <li><button class="stop" type="button" data-go="1"><span class="pin" aria-hidden="true">1</span><span class="lab">接続</span></button></li>
+    <li><button class="stop" type="button" data-go="2"><span class="pin" aria-hidden="true">2</span><span class="lab">確認</span></button></li>
+    <li><button class="stop" type="button" data-go="3"><span class="pin" aria-hidden="true">3</span><span class="lab">トラブル</span></button></li>
+    <li><button class="stop" type="button" data-go="4"><span class="pin" aria-hidden="true">記</span><span class="lab">ノート</span></button></li>
+  </ol>
+</nav>
 
-        <!-- サイド解説パネル -->
-        <div class="explanation-card">
-          <h2>💡 ここがポイント！</h2>
-          <div id="explanation-text">
-            <p>スマホをWi-Fiにつなぐときは、以下の順番で情報がやり取りされています。</p>
-            <ol>
-              <li><strong>SSIDの選択</strong>：接続したい無線ルータ（アクセスポイント）を指定します。</li>
-              <li><strong>暗号化キー入力</strong>：通信を盗み見られないよう合言葉を入力します。</li>
-              <li><strong>IPアドレスの自動割り当て</strong>：接続が成功すると、ルータの<strong>DHCP機能</strong>が端末にネット上の住所（IPアドレス）を自動で貸し出します。</li>
-            </ol>
-          </div>
-        </div>
+<main id="main">
+<noscript><p class="station">このページはJavaScriptを使います。ブラウザの設定でJavaScriptをオンにしてください。</p></noscript>
+
+<!-- ============ 0 出発 ============ -->
+<section class="station" id="st-home">
+  <div class="hero">
+    <div class="hero-text">
+      <h2>次の時間は、自分の端末で<br>ほんもののWi-Fiにつなぎます</h2>
+      <p class="lead">その前に、この予行演習で3つの動きをつかんでおこう。ここでの失敗は減点になりません。何度でもやり直せます。</p>
+    </div>
+    <svg class="hero-art" viewBox="0 0 440 190" role="img" aria-label="ルーターからスマホへ、荷物が電波にのって届くイラスト。道路にはトラックが走っている">
+      <rect x="0" y="150" width="440" height="40" fill="#5B6B7A"/>
+      <path d="M0 170H440" stroke="#fff" stroke-width="4" stroke-dasharray="16 12"/>
+      <use href="#i-router" x="14" y="26" width="130" height="98" style="--l1:#2FBF71;--l2:#2FBF71;--l3:#2FBF71"/>
+      <path d="M150 62Q222 -8 316 62" fill="none" stroke="#14304A" stroke-width="3.5" stroke-dasharray="3 10" stroke-linecap="round"/>
+      <use href="#i-box" x="203" y="14" width="46" height="42"/>
+      <use href="#i-phone" x="322" y="12" width="72" height="120"/>
+      <use href="#i-truck" x="170" y="108" width="120" height="70"/>
+    </svg>
+  </div>
+
+  <ol class="flow" aria-label="本番の3つの活動">
+    <li>
+      <b>接続</b>
+      <span>班のSSIDを選んで、暗号化キーを入れる。</span>
+      <button class="btn small" type="button" data-go="1">練習する</button>
+    </li>
+    <li>
+      <b>確認</b>
+      <span>ルーターから届いたIPアドレスと、端末のMACアドレスを見つける。</span>
+      <button class="btn small" type="button" data-go="2">練習する</button>
+    </li>
+    <li>
+      <b>トラブル</b>
+      <span>つながらない原因を「物理 → 設定」の順でさがして、直す。</span>
+      <button class="btn small" type="button" data-go="3">練習する</button>
+    </li>
+  </ol>
+
+  <div class="panel prep">
+    <h3>出発の準備</h3>
+    <div class="fields">
+      <label class="field"><span>自分の班</span><select id="selGroup"></select></label>
+      <label class="field"><span>使う端末</span><select id="selDevice"></select></label>
+    </div>
+    <p class="note">選んだ内容はこの端末のブラウザの中だけに保存されます。外部には送られません。</p>
+  </div>
+
+  <h3 class="sect">ことばの荷札</h3>
+  <p class="lead">Wi-Fiのことばは、宅配便にたとえると分かりやすくなります。</p>
+  <ul class="tags" id="tagList"></ul>
+
+  <h3 class="sect">うまくいかないときの合言葉</h3>
+  <div class="why">
+    <div class="stairs-art" role="img" aria-label="1段目が物理、2段目が設定の階段">
+      <div class="stair s1"><b>1段目　物理</b><span>電源・ランプ・電波・機内モード</span></div>
+      <div class="stair s2"><b>2段目　設定</b><span>SSID・暗号化キー・IPアドレス</span></div>
+    </div>
+    <div class="why-text">
+      <p>荷物が届かないとき、まず確かめるのは「配送センターが動いているか」「道がつながっているか」です。</p>
+      <p>電源が切れているルーターの設定をどれだけ見ても、直りません。だから<b>目で見て、すぐ確かめられる物理から</b>。ぜんぶ見てから、設定に進みます。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 1 接続 ============ -->
+<section class="station" id="st-connect" hidden>
+  <p class="sign">本番の1「接続実習」の予行</p>
+  <h2>班のSSIDを選んで、キーを入れて、つなごう</h2>
+  <p class="lead">スマホの画面を、そのままタップして操作します。わからなくなったら、左のシールを見てね。</p>
+  <div class="cols-phone">
+    <div class="side">
+      <h3>やること</h3>
+      <ol class="tasks" id="tasksA"></ol>
+      <div class="slip" id="labelA"></div>
+      <p class="note">ここは練習用のSSIDとキーです。本番は、班のルーターの実物のシールや先生の指示で確かめます。</p>
+    </div>
+    <div class="phone" aria-label="練習用のスマホ画面">
+      <div class="phone-screen" id="phoneA" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 確認 ============ -->
+<section class="station" id="st-check" hidden>
+  <p class="sign">本番の2「設定確認」の予行</p>
+  <h2>届いた「住所」と、端末の「製造番号」を見つけよう</h2>
+
+  <div class="block">
+    <h3>自分の端末で開く場所</h3>
+    <div class="devtabs" id="devTabs"></div>
+    <div id="devSteps"></div>
+  </div>
+
+  <div class="block">
+    <h3>設定画面を読む練習</h3>
+    <div class="cols-phone">
+      <div class="side" id="quizB" aria-live="polite"></div>
+      <div class="phone" aria-label="練習用の設定画面">
+        <div class="phone-screen" id="phoneB"></div>
       </div>
-    </section>
+    </div>
+  </div>
 
-    <!-- TAB 2: トラブル切り分けミッション -->
-    <section id="trouble-tab" class="tab-content">
-      <div class="mission-container">
-        <h2>🛠️ トラブルシューティング・切り分けミッション</h2>
-        <p>「ネットにつながらない！」というトラブルが発生しました。<strong>「① 物理（電源・電波）」→「② 設定（パスワード・IP）」</strong>の正しい点検順序で原因を特定しましょう。</p>
-
-        <div class="mission-card">
-          <div class="mission-header">
-            <span class="mission-tag">ミッション <span id="mission-num">1</span> / 3</span>
-            <h3 id="mission-title">問題の読み込み中...</h3>
-          </div>
-          <p id="mission-desc" class="mission-desc"></p>
-
-          <div class="action-steps">
-            <h4>【ステップ1】まず何から点検しますか？</h4>
-            <div id="step1-buttons" class="btn-group"></div>
-
-            <div id="step2-container" class="hidden">
-              <h4>【ステップ2】原因の特定と対策</h4>
-              <div id="step2-buttons" class="btn-group"></div>
-            </div>
-          </div>
-
-          <div id="mission-feedback" class="feedback-box hidden"></div>
-          <button id="next-mission-btn" class="btn-primary hidden" onclick="nextMission()">次のミッションへ</button>
-        </div>
+  <div class="block">
+    <h3>アドレス判定機</h3>
+    <p class="lead">見つけたIPアドレスとMACアドレスを入れると、正常かどうかを判定します。本番の記録にも使えます。1行目があなた、ほかの行は同じ班の仲間の端末です。</p>
+    <div class="slip board">
+      <p class="slip-title">お届け先の記録伝票</p>
+      <label class="gwrow"><span>ルーター（ゲートウェイ）</span>
+        <input class="dm" id="bdGw" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="192.168.3.1"></label>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th scope="col">端末</th><th scope="col">IPアドレス</th><th scope="col">MACアドレス</th></tr></thead>
+          <tbody id="bdRows"></tbody>
+        </table>
       </div>
-    </section>
-
-    <!-- TAB 3: 重要用語カード -->
-    <section id="terms-tab" class="tab-content">
-      <h2>📚 これだけは押さえよう！情報Ⅰ LAN用語</h2>
-      <div class="terms-grid">
-        <div class="term-card">
-          <div class="term-icon">🚪</div>
-          <h3>ルータ</h3>
-          <p>家庭や学校のLAN（内部）とインターネット（外部）の境界に立ち、データの行き先を案内する機器。</p>
-        </div>
-        <div class="term-card">
-          <div class="term-icon">🔌</div>
-          <h3>スイッチングハブ</h3>
-          <p>有線LANケーブルを何本も挿して、機器同士を物理的につなぐ集約機器。</p>
-        </div>
-        <div class="term-card">
-          <div class="term-icon">🏠</div>
-          <h3>IPアドレス</h3>
-          <p>ネットワーク上で機器を識別するための「ネット上の住所」（例: 192.168.1.1）。</p>
-        </div>
-        <div class="term-card">
-          <div class="term-icon">🏷️</div>
-          <h3>MACアドレス</h3>
-          <p>スマホやPCの製造時に付けられた、世界に1つだけの固有識別番号（機器のマイナンバー）。</p>
-        </div>
-        <div class="term-card">
-          <div class="term-icon">🤖</div>
-          <h3>DHCP</h3>
-          <p>Wi-Fiに繋がった機器へ、空いているIPアドレスを自動的に配ってくれる仕組み。</p>
-        </div>
-        <div class="term-card">
-          <div class="term-icon">🔐</div>
-          <h3>WPA2 / WPA3</h3>
-          <p>無線LANの電波を暗号化し、通信の盗み見や不正侵入を防ぐセキュリティ規格。</p>
-        </div>
+      <div class="btnrow">
+        <button class="btn primary" type="button" data-act="bd-judge">判定する</button>
+        <button class="btn" type="button" data-act="bd-sample">まちがい入りのサンプル</button>
+        <button class="btn" type="button" data-act="bd-clear">クリア</button>
       </div>
-    </section>
-  </main>
+      <p class="note">先頭3組（例：192.168.3）が同じなら、同じ「町」にいると判定します（サブネットマスクが255.255.255.0のとき）。</p>
+    </div>
+    <ul class="res" id="bdResult" aria-live="polite"></ul>
+  </div>
+</section>
 
-  <script src="script.js"></script>
+<!-- ============ 3 トラブル ============ -->
+<section class="station" id="st-trouble" hidden>
+  <p class="sign">本番の3「トラブル体験」の予行</p>
+  <h2>「物理 → 設定」の順で、原因をさがそう</h2>
+  <p class="lead">お客さんからの依頼を1つ選びます。点検の結果（証拠）を集めてから、直す方法を選ぶのがルールです。</p>
+  <div class="missionbar">
+    <ul class="tickets" id="missionList"></ul>
+    <button class="btn small" type="button" data-act="c-random">おまかせで1つ</button>
+  </div>
+  <div id="missionArea"></div>
+</section>
+
+<!-- ============ 4 ノート ============ -->
+<section class="station" id="st-note" hidden>
+  <p class="sign">本番に持っていく</p>
+  <h2>実習ノート</h2>
+
+  <h3 class="sect">配達スタンプ</h3>
+  <div class="stampcard" id="stampCard"></div>
+
+  <h3 class="sect">本番のチェックシート</h3>
+  <p class="lead">本番中に、できたところへチェックを入れよう。印刷もできます。</p>
+  <div class="checklists" id="checklists"></div>
+  <div class="btnrow noprint">
+    <button class="btn primary" type="button" data-act="n-print">印刷する</button>
+    <button class="btn" type="button" data-act="n-reset">練習の記録をぜんぶ消す</button>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <p>パケット便の旅 特別便　情報Ⅰ　ネットワーク実習の事前練習</p>
+</footer>
+
+<script src="script.js"></script>
 </body>
 </html>
-
- 
